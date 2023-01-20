@@ -1,0 +1,191 @@
+import 'package:flutter/material.dart';
+import 'package:mobile_radar_marqueur/Widget/marker_list_widget.dart';
+import 'package:provider/provider.dart';
+
+import 'api.dart/api.dart';
+
+import 'package:http/http.dart' as http;
+import 'package:mobile_radar_marqueur/modele/markeur.dart';
+import 'dart:convert';
+
+void main() {
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => MarkeurProvider(),
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+    
+          primarySwatch: Colors.blue,
+        ),
+        home: const HomePage( ) /*Testee(),*/
+      ),
+    );
+  }
+}
+
+
+
+
+class HomePage extends StatefulWidget {
+  const HomePage({ Key? key }) : super(key: key);
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // late Future<Markeur> futureMarker;
+  late final List<Markeur> dataMarker;
+  // final  List <Markeur> dataMarker = [];
+
+  // late final List<Markeur> marqueur =;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // futureMarker = fetchMarkeur();
+    
+    print('init');
+    fetchMarkeur();
+    print('Methode terminer');
+  }
+
+  Future< List<Markeur>> fetchMarkeur() async {
+  final response = await http
+      .get(Uri.parse('http://10.0.2.2:8000/apis/v1/?format=json'));
+
+  if (response.statusCode == 200) {
+    print('Ok');
+    // If the server did return a 200 OK response,
+    // then parse the JSON.
+    // final List result = json.decode(response.body)/*.cast<Markeur>() */;
+    // return result.map((e) => Markeur.fromJson(e)).toList();
+    return Markeur.fromJsonList(json.decode(response.body));
+    
+
+    // return Markeur.fromJson(jsonDecode(response.body));
+  } else {
+    // If the server did not return a 200 OK response,
+    // then throw an exception.
+    throw Exception('Failed to load album');
+  }
+}
+
+//  Future<List<TransactionDetails>> fetchAlbum() async {
+//     final response = await http.get(Uri.parse(
+//         'https://brotherlike-navies.000webhostapp.com/people/people.php'));
+
+//     if (response.statusCode == 200) {
+//       final List result = json.decode(response.body);
+//       return result.map((e) => TransactionDetails.fromJson(e)).toList();
+//     } else {
+//       throw Exception('Failed to load data');
+//     }
+//   }
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    final marquerP = Provider.of<MarkeurProvider>(context);
+
+    return Scaffold(
+      appBar: AppBar(
+
+      ),
+
+      body: Center(
+        child: FutureBuilder<List<Markeur>>(
+          future: fetchMarkeur(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+
+              // var markeurData = snapshot.data!;
+              return ListView.builder(
+                itemCount:  snapshot.data!.length/*marqueur*/,
+                itemBuilder: (context, index){
+
+                  return ListTile(
+                      title: Text(snapshot.data![index].description.toString()),
+                      subtitle: Text('La latitude est de ' + snapshot.data![index].latitude.toString()),
+                      trailing: Text('La longitude est de ' + snapshot.data![index].longitude.toString()),
+                      // leading: Text(DateTime.tryParse(snapshot.data!.datecreation.toString()).toString()),
+                      );
+                }
+              );
+              
+              // ListView(
+              //   children: [
+              //     ListTile(
+              //     title: Text(snapshot.data!.description),
+              //     subtitle: Text('La latitude est de ' + snapshot.data!.latitude.toString()),
+              //     trailing: Text('La longitude est de ' + snapshot.data!.longitude.toString()),
+              //     // leading: Text(DateTime.tryParse(snapshot.data!.datecreation.toString()).toString()),
+              //     ),
+
+                  
+              //   ],
+              // );
+            
+            } else if (snapshot.hasError){
+              return Text('${snapshot.error}');
+            }
+
+            return const CircularProgressIndicator();
+
+          }
+        )
+        
+        
+        
+        // ListView.builder(
+        //   itemCount: marquerP.marqueurs.length,
+        //   itemBuilder: (BuildContext context, int index){
+        //     return ListTile(
+        //       title: Text(marquerP.marqueurs[index].description),
+        //       subtitle: Text('La latitude est de ' + marquerP.marqueurs[index].latitude.toString()),
+        //       trailing: Text('La longitude est de ' + marquerP.marqueurs[index].longitude.toString()),
+        //     );
+        //   },
+        // ),
+      ),
+
+      // floatingActionButton: FloatingActionButton(
+      //     child: Icon(
+      //       Icons.add,
+      //       size: 30,
+      //     ),
+      //     onPressed: () {
+      //       Navigator.of(context)
+      //           .push(MaterialPageRoute(builder: (ctx) => AddTodoScreen()));
+      //     }
+      // ),
+       
+    );
+  }
+}
+
+
+class Testee extends StatefulWidget {
+  const Testee({ Key? key }) : super(key: key);
+
+  @override
+  State<Testee> createState() => _TesteeState();
+}
+
+class _TesteeState extends State<Testee> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold();
+  }
+}
