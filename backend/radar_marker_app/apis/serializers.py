@@ -13,3 +13,12 @@ class MarkeurSerializer(serializers.ModelSerializer):
             'description'
         )
         model = models.Markeur
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            'id',
+            'username',
+            'password'
+        )
+        model = models.User

@@ -14,6 +14,10 @@ class Markeur(models.Model):
     # def __str__(self):
     #     return self.latitude
 
+class User(models.Model) :
+    username = models.TextField(max_length=50)
+    password = models.TextField(max_length=20)
+
 
 # class Todo(models.Model):
 #     title = models.CharField(max_length=200)
